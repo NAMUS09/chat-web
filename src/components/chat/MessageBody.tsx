@@ -1,0 +1,92 @@
+import { useAppSelector } from "@/store";
+import { selectMessages } from "@/store/slices/messageSlice";
+import { useEffect, useRef } from "react";
+
+type Props = {
+  conversationId: string;
+};
+
+const MessageBody: React.FC<Props> = ({ conversationId }) => {
+  const currentUser = useAppSelector((state) => state.auth.user);
+  const messages = useAppSelector((state) =>
+    selectMessages(state, conversationId)
+  );
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Format timestamp
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // Render message status icon
+  const renderMessageStatus = (status: string) => {
+    switch (status) {
+      case "sent":
+        return <span className="text-gray-400">✓</span>;
+      case "delivered":
+        return <span className="text-gray-400">✓✓</span>;
+      case "read":
+        return <span className="text-green-500 leading-0">✓✓</span>;
+      default:
+        return null;
+    }
+  };
+
+  // Auto-scroll to bottom on new messages
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  return (
+    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {messages.length === 0 ? (
+        <div className="flex items-center justify-center h-full text-gray-500">
+          No messages yet. Start the conversation!
+        </div>
+      ) : (
+        messages.map((message) => {
+          const isOwnMessage = message.senderId._id === currentUser?.id;
+
+          return (
+            <div
+              key={message._id}
+              className={`flex ${
+                isOwnMessage ? "justify-end" : "justify-start"
+              }`}
+            >
+              <div
+                className={`max-w-[70%] rounded-lg p-3 ${
+                  isOwnMessage
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-900"
+                }`}
+              >
+                <p className="wrap-break-word">{message.content}</p>
+                <div
+                  className={`flex items-center gap-1 justify-end mt-1 text-xs ${
+                    isOwnMessage ? "text-blue-100" : "text-gray-500"
+                  }`}
+                >
+                  <span>{formatTime(message.timestamp)}</span>
+                  {isOwnMessage && renderMessageStatus(message.status)}
+                </div>
+              </div>
+            </div>
+          );
+        })
+      )}
+      <div ref={messagesEndRef} />
+    </div>
+  );
+};
+
+export default MessageBody;
