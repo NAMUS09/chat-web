@@ -44,7 +44,7 @@ export function LoginForm({
     const result = await loginAsync(data);
     dispatch(setUser(result.user));
     form.reset();
-    navigate("/chat");
+    navigate("/chat", { replace: true });
   };
 
   return (

@@ -6,7 +6,9 @@ import useSocket, { useSocketEvent } from "@/hooks/useSocket";
 import { cn, getConversationId } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { clearUser } from "@/store/slices/authSlice";
+import { resetMessageState } from "@/store/slices/messageSlice";
 import {
+  resetPresence,
   updateBatchPresence,
   updatePresence,
 } from "@/store/slices/presenceSlice";
@@ -60,7 +62,7 @@ const ChatList = () => {
       getPresence(contactIds, (response) => {
         dispatch(updateBatchPresence(response.presence));
       });
-    }, 100);
+    }, 500);
 
     return () => clearTimeout(timeout);
   }, [contactIds]);
@@ -95,9 +97,12 @@ const LogoutButton = () => {
 
   const handleLogout = async () => {
     await mutateAsync();
-    socket?.disconnect();
+    socket.disconnect();
     dispatch(clearUser());
-    navigate("/login");
+    dispatch(resetPresence());
+    dispatch(resetMessageState());
+    navigate("/login", { replace: true });
+    window.location.href = "/login";
   };
 
   return (

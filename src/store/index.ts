@@ -9,22 +9,6 @@ import messageReducer from "./slices/messageSlice";
 import presenceReducer from "./slices/presenceSlice";
 import uiReducer from "./slices/uiSlice";
 
-/**
- * Redux Store Configuration
- *
- * ARCHITECTURE:
- * - Redux Toolkit for modern Redux patterns
- * - Immer for immutable updates
- * - Redux DevTools for debugging
- * - Typed hooks for TypeScript
- *
- * SLICES:
- * - auth: User authentication state
- * - message: Chat messages and conversations
- * - presence: User online/offline status
- * - ui: UI state (modals, notifications, etc.)
- */
-
 export const store = configureStore({
   reducer: {
     auth: authReducer,
