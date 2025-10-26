@@ -1,27 +1,29 @@
-# 🚀 Real-Time Chat Backend
+# 💬 Real-Time Chat Frontend
 
-Production-ready real-time chat backend with Socket.IO, MongoDB, and Redis.
+Modern real-time chat application built with React, TypeScript, Redux Toolkit, and Socket.IO.
 
 ## 🎯 Features
 
-- ✅ Real-time messaging with Socket.IO
-- ✅ Message status tracking (sent/delivered/read)
+- ✅ Real-time messaging
 - ✅ Typing indicators
+- ✅ Message status (sent/delivered/read)
 - ✅ User presence (online/offline)
-- ✅ Redis caching for performance
-- ✅ MongoDB with optimized indexes
-- ✅ Horizontal scaling with Redis adapter
-- ✅ TypeScript for type safety
+- ✅ Optimistic UI updates
+- ✅ Auto-reconnection
+- ✅ Message history
+- ✅ Unread count badges
+- ✅ Responsive design
 
 ## 🛠 Tech Stack
 
-- **Node.js 18+** with TypeScript
-- **Express.js** - REST API
-- **Socket.IO 4.6+** - Real-time communication
-- **MongoDB 6.0+** - Database
-- **Redis 7.0+** - Caching & Pub/Sub
-- **Winston** - Logging
-- **Bcrypt** - Password hashing
+- **React 19.2** with Hooks
+- **TypeScript** for type safety
+- **Redux Toolkit** for state management
+- **Socket.IO Client** for real-time
+- **Vite** for fast builds
+- **Tailwind CSS** for styling
+- **Tanstack Query** for HTTP requests
+- **Lucide React** for icons
 
 ## 🚀 Quick Start
 
@@ -34,239 +36,271 @@ npm install
 ### 2. Configure Environment
 
 ```bash
-cp .env.example .env
-# Edit .env with your settings
+# Create .env file
+echo "VITE_API_URL=http://localhost:5000" > .env
 ```
 
-**Required variables:**
-```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/realtime_chat
-REDIS_HOST=localhost
-REDIS_PORT=6379
-SESSION_SECRET=your-secret-key
-CLIENT_URL=http://localhost:5173
-```
-
-### 4. Run Server
+### 3. Run Development Server
 
 ```bash
-# Development
 npm run dev
-
-# Production
-npm run build
-npm start
 ```
 
-Server runs on `http://localhost:5000`
+Application runs on `http://localhost:5173`
 
-## 📡 API Endpoints
+## ⚙️ Environment Variables
 
-```http
-GET    /health                              # Health check
-GET    /api/messages/:conversationId        # Get messages
-POST   /api/messages                        # Send message
-GET    /api/messages/unread                 # Unread count
-PATCH  /api/messages/:id                    # Update message
-DELETE /api/messages/:id                    # Delete message
-GET    /api/messages/:conversationId/export/json  # Export JSON
-GET    /api/messages/:conversationId/export/csv   # Export CSV
-```
-
-## 🔌 Socket.IO Events
-
-### Client → Server
-
-```javascript
-socket.emit('message:send', { conversationId, receiverId, content })
-socket.emit('typing:start', { conversationId, receiverId })
-socket.emit('typing:stop', { conversationId, receiverId })
-socket.emit('message:read', { messageIds, conversationId })
-socket.emit('conversation:join', conversationId)
-```
-
-### Server → Client
-
-```javascript
-socket.on('message:new', (data) => {})
-socket.on('message:status', (data) => {})
-socket.on('typing:update', (data) => {})
-socket.on('presence:change', (data) => {})
+```env
+VITE_API_URL=http://localhost:5000
 ```
 
 ## 📁 Project Structure
 
 ```
-backend/
+frontend/
 ├── src/
-│   ├── config/          # Database & Redis setup
-│   ├── models/          # Mongoose schemas
-│   ├── services/        # Business logic
-│   ├── sockets/         # Socket.IO handlers
-│   ├── controllers/     # REST controllers
-│   ├── routes/          # Express routes
-│   ├── utils/           # Logger, helpers
-│   └── server.ts        # Main server
-├── .env.example
+│   ├── components/
+│   │   └── Chat/
+│   │       ├── ChatWindow.tsx       # Main chat component
+│   │       ├── MessageList.tsx
+│   │       └── MessageInput.tsx
+│   │
+│   ├── hooks/
+│   │   ├── useSocket.ts             # Socket.IO hook
+│   │   └── useMessages.ts
+│   │
+│   ├── store/
+│   │   ├── index.ts                 # Redux store
+│   │   └── slices/
+│   │       ├── authSlice.ts         # User auth state
+│   │       ├── messageSlice.ts      # Messages state
+│   │       ├── presenceSlice.ts     # Presence state
+│   │       └── uiSlice.ts           # UI state
+│   │
+│   ├── services/
+│   │   ├── socket.service.ts        # Socket.IO client
+│   │   └── api.service.ts           # HTTP API
+│   │
+│   ├── types/
+│   │   └── index.ts                 # TypeScript types
+│   │
+│   ├── App.tsx                      # Main app
+│   └── main.tsx                     # Entry point
+│
+├── public/
+├── .env
 ├── package.json
-└── tsconfig.json
+├── tsconfig.json
+├── vite.config.ts
+└── tailwind.config.js
 ```
 
-## 🗄 Database Models
+## 🎨 Main Components
 
-### Message Schema
-- conversationId (indexed)
-- senderId, receiverId (indexed)
-- content (max 5000 chars)
-- status: sent | delivered | read
-- timestamp (indexed)
+### ChatWindow
 
-### User Schema
-- username, email (unique, indexed)
-- password (bcrypt hashed)
-- role: user | agent | admin
-- profile (displayName, avatar, bio)
-- isOnline, lastSeen
+```tsx
+import ChatWindow from "./components/Chat/ChatWindow";
+
+<ChatWindow
+  conversationId="conv-123-456"
+  participantId="user-456"
+  participantName="Jane Smith"
+  participantAvatar="https://example.com/avatar.jpg"
+/>;
+```
+
+**Props:**
+
+- `conversationId` - Unique conversation ID
+- `participantId` - Other user's ID
+- `participantName` - Display name
+- `participantAvatar` - Avatar URL (optional)
+
+## 🔌 Socket.IO Integration
+
+### Automatic Features
+
+The app automatically handles:
+
+- Connection to backend
+- Real-time message delivery
+- Typing indicators
+- Presence updates
+- Auto-reconnection
+- Message status updates
+
+### Custom Hook Usage
+
+```tsx
+import { useSocket } from "./hooks/useSocket";
+
+function ChatComponent() {
+  const { isConnected, sendMessage, startTyping, stopTyping } = useSocket(
+    userId,
+    username,
+    role
+  );
+
+  const handleSend = async () => {
+    await sendMessage(conversationId, receiverId, content);
+  };
+
+  return <div>Connected: {isConnected ? "Yes" : "No"}</div>;
+}
+```
+
+## 🗃 Redux State Management
+
+### Store Structure
+
+```typescript
+{
+  auth: {
+    user: User | null,
+    isAuthenticated: boolean
+  },
+  message: {
+    messagesByConversation: Record<string, Message[]>,
+    conversations: Conversation[],
+    typingIndicators: Record<string, string[]>,
+    totalUnreadCount: number
+  },
+  presence: {
+    presenceMap: Record<string, UserPresence>,
+    onlineUsers: string[]
+  },
+  ui: {
+    isSidebarOpen: boolean,
+    notifications: Notification[]
+  }
+}
+```
+
+
+```
 
 ## 🔧 Scripts
 
 ```bash
-npm run dev      # Start development server
-npm run build    # Build TypeScript
-npm start        # Start production server
-npm run lint     # Run linter
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
 ```
 
-## 🐳 Docker Support
+## 🚀 Production Build
 
 ```bash
-# Start MongoDB + Redis
-docker-compose up -d
+# Build
+npm run build
 
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
+# Output in dist/ folder
+# Deploy to any static hosting (Vercel, Netlify, etc.)
 ```
 
-## 📊 Performance
+## 🌐 Deployment
 
-- Message latency: **< 50ms**
-- Cache hit ratio: **75-85%**
-- Query time: **< 20ms**
-- Supports: **1000+ concurrent users**
+### Vercel
 
-## 🔒 Security
+```bash
+npm install -g vercel
+vercel
+```
 
-- Session-based authentication
-- Password hashing with bcrypt
-- CORS configured
-- Helmet.js security headers
-- Input validation
-- Rate limiting ready
-
-## 🚀 Production Deployment
-
-### Using PM2
+### Netlify
 
 ```bash
 npm run build
-pm2 start dist/server.js --name chat-api -i max
-pm2 save
-pm2 startup
+netlify deploy --prod --dir=dist
 ```
 
-### Environment Variables
-
-```env
-NODE_ENV=production
-PORT=5000
-MONGODB_URI=mongodb://user:pass@host:27017/db
-REDIS_HOST=your-redis-host
-REDIS_PORT=6379
-REDIS_PASSWORD=your-password
-SESSION_SECRET=strong-random-secret
-CLIENT_URL=https://yourdomain.com
-BCRYPT_ROUNDS=12
-```
-
-## 🔍 Testing
+### Custom Server
 
 ```bash
-# Health check
-curl http://localhost:5000/health
-
-# Test Socket.IO
-curl http://localhost:5000/socket.io/
+npm run build
+# Serve dist/ folder with nginx or any static server
 ```
-
-## 📝 Environment Setup
-
-**Minimum Requirements:**
-- Node.js 18+
-- MongoDB 6.0+
-- Redis 7.0+
-- 1GB RAM
-- 2 CPU cores
-
-**Recommended:**
-- Node.js 20+
-- 4GB RAM
-- 4 CPU cores
-- SSD storage
 
 ## 🐛 Troubleshooting
 
-**MongoDB connection failed:**
-```bash
-# Check if MongoDB is running
-mongosh
+**Socket not connecting:**
 
-# Check connection string
-echo $MONGODB_URI
+```bash
+# Check backend is running
+curl http://localhost:5000/health
+
+# Check VITE_API_URL in .env
+echo $VITE_API_URL
 ```
 
-**Redis connection failed:**
-```bash
-# Test Redis
-redis-cli ping
+**Build errors:**
 
-# Check Redis host
-echo $REDIS_HOST
+```bash
+# Clear cache
+rm -rf node_modules dist
+npm install
+npm run build
 ```
 
-**Port already in use:**
-```bash
-# Find process on port 5000
-lsof -ti:5000 | xargs kill -9
+**TypeScript errors:**
 
-# Or change PORT in .env
+```bash
+# Check tsconfig.json
+# Install missing types
+npm install -D @types/node
 ```
 
-## 📚 Documentation
+## 📚 Key Files Explained
 
-- [Socket.IO Docs](https://socket.io/docs/)
-- [MongoDB Docs](https://docs.mongodb.com/)
-- [Redis Docs](https://redis.io/docs/)
+**App.tsx** - Main application component
+**useSocket.ts** - Socket.IO connection management
+**messageSlice.ts** - Message state management
+**socket.service.ts** - Socket.IO client wrapper
+**ChatWindow.tsx** - Main chat UI component
+
+## 🔒 Security
+
+- XSS protection via React
+- CSRF tokens for API calls
+- Secure WebSocket (WSS in production)
+- Input sanitization
+- Environment variables for sensitive data
+
+## 🎯 Features in Development
+
+- [ ] File upload/sharing
+- [ ] Voice messages
+- [ ] Video calls
+- [ ] Group chats
+- [ ] Message search
+- [ ] Emoji reactions
+- [ ] Message editing
+- [ ] Push notifications
+
+## 📖 Documentation
+
+- [React Docs](https://react.dev/)
+- [Redux Toolkit](https://redux-toolkit.js.org/)
+- [Socket.IO Client](https://socket.io/docs/v4/client-api/)
+- [Tailwind CSS](https://tailwindcss.com/)
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing`)
+1. Fork repository
+2. Create feature branch
+3. Commit changes
+4. Push to branch
 5. Open Pull Request
 
 ## 📄 License
 
-MIT License - see LICENSE file
+MIT License
 
 ## 👤 Author
 
-Your Name - [@yourusername](https://github.com/yourusername)
+Suman Shrestha - [@NAMUS09](https://github.com/NAMUS09)
 
 ---
 
-**Built with ❤️ using Node.js, Socket.IO, MongoDB, and Redis**
+**Built with ⚛️ React + TypeScript + Socket.IO**
