@@ -1,5 +1,5 @@
 import axiosInstance from "@/lib/axios";
-import type { LoginSchema } from "@/schemas/auth.schema";
+import type { LoginSchema, RegisterSchema } from "@/schemas/auth.schema";
 import type { User } from "@/store/slices/authSlice";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -16,6 +16,21 @@ type AvailableUsersResponse = {
   users: MongoDbUser[];
 };
 
+export const useRegisterMutation = () =>
+  useMutation({
+    mutationFn: async (data: RegisterSchema) => {
+      const response = await axiosInstance.post<LoginResponse>(
+        "/auth/register",
+        data
+      );
+      return response.data;
+    },
+    meta: {
+      successMessage: "Registered successfully",
+      errorMessage: "Failed to register",
+    },
+  });
+
 export const useLoginMutation = () =>
   useMutation({
     mutationFn: async (data: LoginSchema) => {
@@ -28,6 +43,18 @@ export const useLoginMutation = () =>
     meta: {
       successMessage: "Logged in successfully",
       errorMessage: "Failed to log in",
+    },
+  });
+
+export const useLogoutMutation = () =>
+  useMutation({
+    mutationFn: async () => {
+      const response = await axiosInstance.post("/auth/logout");
+      return response.data;
+    },
+    meta: {
+      successMessage: "Logged out successfully",
+      errorMessage: "Failed to log out",
     },
   });
 

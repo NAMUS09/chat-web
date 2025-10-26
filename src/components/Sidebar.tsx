@@ -1,8 +1,13 @@
-import { useAvailableUsersQuery } from "@/hooks/queries/auth";
+import {
+  useAvailableUsersQuery,
+  useLogoutMutation,
+} from "@/hooks/queries/auth";
 import { cn, getConversationId } from "@/lib/utils";
-import { useAppSelector } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { clearUser } from "@/store/slices/authSlice";
 import { useNavigate, useParams } from "react-router-dom";
 import Avatar from "./Avatar";
+import { Button } from "./ui/button";
 
 const ChatBox = ({ contact }: { contact: any }) => {
   const { id } = useParams();
@@ -48,13 +53,37 @@ const ChatList = () => {
   );
 };
 
+const LogoutButton = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { mutateAsync, isPending } = useLogoutMutation();
+
+  const handleLogout = async () => {
+    await mutateAsync();
+    dispatch(clearUser());
+    navigate("/login");
+  };
+
+  return (
+    <Button variant={"secondary"} onClick={handleLogout} className="w-full">
+      {isPending ? "Logging out..." : "Logout"}
+    </Button>
+  );
+};
+
 export default function Sidebar() {
   return (
-    <div className="w-80 bg-white border-r">
+    <div className="w-80 bg-white border-r flex flex-col">
       <div className="p-4 border-b h-16">
         <h2 className="text-xl font-bold">Chats</h2>
       </div>
-      <ChatList />
+      <div className="flex-1 overflow-y-auto">
+        <ChatList />
+      </div>
+
+      <div className="p-4">
+        <LogoutButton />
+      </div>
     </div>
   );
 }

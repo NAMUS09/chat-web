@@ -6,6 +6,7 @@ import PrivateRoute, {
 import ChatDetailPage from "./pages/ChatDetailPage";
 import ChatListPage from "./pages/ChatListPage";
 import LoginPage from "./pages/LoginPage";
+import RegistrationPage from "./pages/RegistrationPage";
 
 function AppRoutes() {
   return (
@@ -13,6 +14,7 @@ function AppRoutes() {
       <Route path="/" element={<Navigate to="/chat" replace />} />
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegistrationPage />} />
       </Route>
       <Route element={<PrivateRoute />}>
         <Route path="/chat" element={<ChatListPage />} />

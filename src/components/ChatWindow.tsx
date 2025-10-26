@@ -84,6 +84,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   return (
     <div className="flex flex-col h-full bg-white">
       <ChatDetailHeader
+        participantId={participantId}
         participantName={participantName}
         participantAvatar={participantAvatar}
       />
