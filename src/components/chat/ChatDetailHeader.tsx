@@ -4,6 +4,7 @@ import {
   selectTypingUsers,
   updateTypingIndicator,
 } from "@/store/slices/messageSlice";
+import { selectUserPresence } from "@/store/slices/presenceSlice";
 import { ArrowLeft } from "lucide-react";
 import React from "react";
 import { Link, useParams } from "react-router-dom";
@@ -23,16 +24,11 @@ const ChatDetailHeader: React.FC<ChatDetailHeaderProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const { id } = useParams();
-  // const [status, setStatus] = React.useState<string>("offline");
+  const presence = useAppSelector((state) =>
+    selectUserPresence(state, participantId)
+  );
   const typingUsers = useAppSelector((state) => selectTypingUsers(state, id!));
 
-  // Listem for presence updates
-  // useSocketEvent<any>("presence:change", (data) => {
-  //   console.log(data);
-  //   if (data.userId === participantId) {
-  //     setStatus(data.status);
-  //   }
-  // });
   // Listen for typing indicators
   useSocketEvent<any>("typing:update", (data) => {
     if (data.conversationId === id) {
@@ -55,13 +51,21 @@ const ChatDetailHeader: React.FC<ChatDetailHeaderProps> = ({
         </Button>
       </Link>
       <div className="flex items-center gap-3">
-        <Avatar avatar={participantAvatar} displayName={participantName} />
+        <Avatar
+          userId={participantId}
+          avatar={participantAvatar}
+          displayName={participantName}
+        />
 
         <div className="flex-1">
           <h2 className="font-semibold text-gray-900">{participantName}</h2>
-          {/* <p className="text-sm text-gray-500 capitalize">{status}</p> */}
-          {typingUsers.length > 0 && (
+
+          {typingUsers.length > 0 ? (
             <p className="text-sm text-green-600">typing...</p>
+          ) : (
+            <p className="text-sm text-gray-500 capitalize">
+              {presence?.status}
+            </p>
           )}
         </div>
       </div>

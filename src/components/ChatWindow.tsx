@@ -29,11 +29,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const { data: initalData, isLoading } = useConversationsQuery(conversationId);
 
-  const { isConnected, markAsRead, joinConversation } = useSocket(
-    currentUser?.id,
-    currentUser?.username,
-    currentUser?.role
-  );
+  const { isConnected, markAsRead, joinConversation } = useSocket(currentUser);
 
   useEffect(() => {
     if (!isLoading && initalData && initalData.messages) {

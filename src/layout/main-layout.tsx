@@ -7,11 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const queryClient = useQueryClient();
   const currentUser = useAppSelector((state) => state.auth.user);
-  const { isConnected, markAsDelivered } = useSocket(
-    currentUser?.id,
-    currentUser?.username,
-    currentUser?.role
-  );
+  const { isConnected, markAsDelivered } = useSocket(currentUser);
 
   const dispatch = useAppDispatch();
   // Listen for new messages

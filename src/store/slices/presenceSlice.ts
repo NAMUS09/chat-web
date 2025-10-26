@@ -84,7 +84,12 @@ export const {
 
 // Selectors
 export const selectUserPresence = (state: RootState, userId: string) =>
-  state.presence.presenceMap[userId];
+  state.presence.presenceMap[userId] || {
+    userId,
+    username: "",
+    status: "offline",
+    lastSeen: "",
+  };
 
 export const selectOnlineUsers = (state: RootState) =>
   state.presence.onlineUsers;

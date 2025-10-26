@@ -136,11 +136,7 @@ The app automatically handles:
 import { useSocket } from "./hooks/useSocket";
 
 function ChatComponent() {
-  const { isConnected, sendMessage, startTyping, stopTyping } = useSocket(
-    userId,
-    username,
-    role
-  );
+  const { isConnected, sendMessage, startTyping, stopTyping } = useSocket(user);
 
   const handleSend = async () => {
     await sendMessage(conversationId, receiverId, content);
@@ -177,8 +173,7 @@ function ChatComponent() {
 }
 ```
 
-
-```
+````
 
 ## 🔧 Scripts
 
@@ -187,7 +182,7 @@ npm run dev          # Start development server
 npm run build        # Build for production
 npm run preview      # Preview production build
 npm run lint         # Run ESLint
-```
+````
 
 ## 🚀 Production Build
 

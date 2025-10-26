@@ -2,9 +2,15 @@ import {
   useAvailableUsersQuery,
   useLogoutMutation,
 } from "@/hooks/queries/auth";
+import useSocket, { useSocketEvent } from "@/hooks/useSocket";
 import { cn, getConversationId } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { clearUser } from "@/store/slices/authSlice";
+import {
+  updateBatchPresence,
+  updatePresence,
+} from "@/store/slices/presenceSlice";
+import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Avatar from "./Avatar";
 import { Button } from "./ui/button";
@@ -30,6 +36,7 @@ const ChatBox = ({ contact }: { contact: any }) => {
     >
       <div className="flex items-center gap-3">
         <Avatar
+          userId={contact._id}
           avatar={contact.profile.avatar}
           displayName={contact.profile.displayName}
         />
@@ -40,7 +47,33 @@ const ChatBox = ({ contact }: { contact: any }) => {
 };
 
 const ChatList = () => {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
   const { data, isLoading } = useAvailableUsersQuery();
+  const contactIds = data?.users.map((contact) => contact._id) ?? [];
+  const { getPresence } = useSocket(user);
+
+  useEffect(() => {
+    if (!contactIds.length) return;
+
+    const timeout = setTimeout(() => {
+      getPresence(contactIds, (response) => {
+        dispatch(updateBatchPresence(response.presence));
+      });
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, [contactIds]);
+
+  useSocketEvent<any>(
+    "presence:change",
+    (data) => {
+      if (contactIds.includes(data.userId)) {
+        dispatch(updatePresence(data));
+      }
+    },
+    [contactIds]
+  );
 
   if (isLoading) return <div className="p-4">Loading...</div>;
 
@@ -54,12 +87,15 @@ const ChatList = () => {
 };
 
 const LogoutButton = () => {
+  const { user } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { mutateAsync, isPending } = useLogoutMutation();
+  const { socket } = useSocket(user);
 
   const handleLogout = async () => {
     await mutateAsync();
+    socket?.disconnect();
     dispatch(clearUser());
     navigate("/login");
   };

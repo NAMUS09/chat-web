@@ -1,6 +1,6 @@
 import { useAppSelector } from "@/store";
 import { selectMessages } from "@/store/slices/messageSlice";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   conversationId: string;
@@ -12,7 +12,9 @@ const MessageBody: React.FC<Props> = ({ conversationId }) => {
     selectMessages(state, conversationId)
   );
 
+  const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isUserNearBottom, setIsUserNearBottom] = useState(true);
 
   // Format timestamp
   const formatTime = (timestamp: string) => {
@@ -23,7 +25,6 @@ const MessageBody: React.FC<Props> = ({ conversationId }) => {
     });
   };
 
-  // Render message status icon
   const renderMessageStatus = (status: string) => {
     switch (status) {
       case "sent":
@@ -31,23 +32,41 @@ const MessageBody: React.FC<Props> = ({ conversationId }) => {
       case "delivered":
         return <span className="text-gray-400">✓✓</span>;
       case "read":
-        return <span className="text-green-500 leading-0">✓✓</span>;
+        return <span className="text-green-300 leading-0">✓✓</span>;
       default:
         return null;
     }
   };
 
-  // Auto-scroll to bottom on new messages
   useEffect(() => {
-    scrollToBottom();
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const threshold = 150; // px from bottom
+      const distanceFromBottom =
+        container.scrollHeight - container.scrollTop - container.clientHeight;
+      setIsUserNearBottom(distanceFromBottom < threshold);
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+    }
+  }, [conversationId]);
+
+  useEffect(() => {
+    if (isUserNearBottom) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
       {messages.length === 0 ? (
         <div className="flex items-center justify-center h-full text-gray-500">
           No messages yet. Start the conversation!
@@ -55,7 +74,6 @@ const MessageBody: React.FC<Props> = ({ conversationId }) => {
       ) : (
         messages.map((message) => {
           const isOwnMessage = message.senderId._id === currentUser?.id;
-
           return (
             <div
               key={message._id}

@@ -21,11 +21,8 @@ const MessageForm: React.FC<Props> = ({ conversationId, participantId }) => {
   const currentUser = useAppSelector((state) => state.auth.user);
   const queryClient = useQueryClient();
 
-  const { isConnected, sendMessage, startTyping, stopTyping } = useSocket(
-    currentUser?.id,
-    currentUser?.username,
-    currentUser?.role
-  );
+  const { isConnected, sendMessage, startTyping, stopTyping } =
+    useSocket(currentUser);
 
   const typingTimeoutRef = useRef<any>(null);
 

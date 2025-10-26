@@ -1,3 +1,4 @@
+import type { User } from "@/store/slices/authSlice";
 import { useCallback, useEffect, useRef, useState } from "react";
 import socketService, { type SocketEvents } from "../services/socket.service";
 
@@ -22,14 +23,21 @@ interface UseSocketReturn {
   stopTyping: (conversationId: string, receiverId?: string) => void;
   joinConversation: (conversationId: string) => void;
   leaveConversation: (conversationId: string) => void;
+  getPresence: (
+    userIds: string[],
+    callback?: ((response: any) => void) | undefined
+  ) => void;
+  getSinglePresence: (
+    userId: string,
+    callback?: ((response: any) => void) | undefined
+  ) => void;
 }
 
 export const useSocket = (
-  userId?: string,
-  username?: string,
-  role?: string,
+  user: User | null,
   options: UseSocketOptions = {}
 ): UseSocketReturn => {
+  const { id: userId, username, role } = user || {};
   const [isConnected, setIsConnected] = useState(false);
   const typingTimeoutRef = useRef<any>(null);
   const { autoConnect = true, onConnect, onDisconnect, onError } = options;
@@ -199,6 +207,29 @@ export const useSocket = (
     [isConnected]
   );
 
+  /**
+   * Get User Presence
+   */
+  const getSinglePresence = useCallback(
+    (userId: string, callback?: (response: any) => void) => {
+      if (!isConnected) return;
+      socketService.getSinglePresence(userId, callback);
+    },
+    [isConnected]
+  );
+
+  /**
+   * Get Presence
+   */
+  const getPresence = useCallback(
+    (userIds: string[], callback?: (response: any) => void) => {
+      if (!isConnected) return;
+
+      socketService.getPresence(userIds, callback);
+    },
+    [isConnected]
+  );
+
   return {
     isConnected,
     socket: socketService,
@@ -209,6 +240,8 @@ export const useSocket = (
     stopTyping,
     joinConversation,
     leaveConversation,
+    getSinglePresence,
+    getPresence,
   };
 };
 

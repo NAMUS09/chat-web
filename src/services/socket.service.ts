@@ -29,7 +29,7 @@ class SocketService {
    */
   connect(userId: string, username: string, role: string): Socket {
     if (this.socket?.connected) {
-      console.log("Socket already connected");
+      //console.log("Socket already connected");
       return this.socket;
     }
 
