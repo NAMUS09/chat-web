@@ -22,7 +22,7 @@ import { setUser } from "@/store/slices/authSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function LoginForm({
   className,
@@ -106,7 +106,8 @@ export function LoginForm({
                   Login with Google
                 </Button> */}
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="/register">Sign up</a>
+                  Don&apos;t have an account?{" "}
+                  <Link to="/register">Sign up</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>

@@ -11,6 +11,7 @@ const ChatDetailPage = () => {
   const { data, isLoading } = useAvailableUsersQuery();
 
   if (isLoading) return <div className="p-4">Loading...</div>;
+
   const selectedContact = data?.users.find(
     (user) => getConversationId(currrentUser!.id, user._id) === id
   );

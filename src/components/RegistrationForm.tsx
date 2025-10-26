@@ -29,7 +29,7 @@ import { setUser } from "@/store/slices/authSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function RegisterForm({
   className,
@@ -176,7 +176,7 @@ export default function RegisterForm({
                 </Button>
 
                 <FieldDescription className="text-center">
-                  Already have an account? <a href="/login">Login</a>
+                  Already have an account? <Link to="/login">Login</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>

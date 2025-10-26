@@ -72,8 +72,16 @@ const LogoutButton = () => {
 };
 
 export default function Sidebar() {
+  const { id } = useParams();
+
+  const isChatPage = id !== undefined;
   return (
-    <div className="w-80 bg-white border-r flex flex-col">
+    <div
+      className={cn(
+        "w-full md:w-80 bg-white border-r flex flex-col",
+        isChatPage && "hidden md:flex"
+      )}
+    >
       <div className="p-4 border-b h-16">
         <h2 className="text-xl font-bold">Chats</h2>
       </div>

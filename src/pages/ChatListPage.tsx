@@ -1,6 +1,6 @@
 const ChatListPage = () => {
   return (
-    <div className="flex items-center justify-center h-full">
+    <div className="items-center justify-center h-full hidden md:flex">
       <p>Select a contact to start chatting</p>
     </div>
   );
